@@ -1,7 +1,7 @@
 pipeline {
     environment {
         registry = 'abhigyan97/ml_model'
-        registryCredential = 'abhigyan97'
+        registryCredential = 'Docker@1997'
         dockerImage = ''
     }
     agent any
