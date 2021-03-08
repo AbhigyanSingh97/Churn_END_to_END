@@ -9,12 +9,12 @@ pipeline {
 	   }
 	   stage('Build Image') {
 	        steps {
-	        sh 'docker build . -f Dockerfile -t churnmodel:v1'
+	        sh 'docker build . -f Dockerfile -t churnmodel'
 	        }
 	   }
 	   stage('Run Image') {
 	        steps {
-	        sh 'docker run -d -p 4000:8000 --name churn churnmodel:v1'
+	        sh 'docker run -d -p 4000:8000 --name churn churnmodel'
 	        }
 	   }
 	   stage('Testing'){
