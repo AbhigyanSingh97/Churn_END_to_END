@@ -1,26 +1,33 @@
 pipeline {
-	agent any
-	    stages {
-	        stage('Clone Repository') {
-	        /* Cloning the repository to our workspace */
-	        steps {
-	        checkout scm
-	        }
-	   }
-	   stage('Build Image') {
-	        steps {
-	        sh 'docker build . -f Dockerfile -t churnmodel'
-	        }
-	   }
-	   stage('Run Image') {
-	        steps {
-	        sh 'docker run -d -p 4000:8000 --name churn churnmodel'
-	        }
-	   }
-	   stage('Testing'){
-	        steps {
-	            echo 'Testing..'
-	            }
-	   }
+    environment {
+        registry = 'abhigyan97/ml_model'
+        registryCredential = 'abhigyan97'
+        dockerImage = ''
+    }
+    agent any
+    stages {
+        stage('Build Docker Image') {
+            agent any
+            steps {
+                script {
+                    dockerImage = docker.build registry + ":$BUILD_NUMBER"
+                }
+            }
+        }
+        stage('Push Docker Image to Registry') {
+            agent any
+            steps {
+                script {
+                    docker.withRegistry('',registryCredential) {
+                        dockerImage.push()
+                    }
+                }
+            }
+        }
+        stage('Remove Unused docker image') {
+            steps {
+                sh "docker rmi $registry:$BUILD_NUMBER"
+            }
+        }
     }
 }
