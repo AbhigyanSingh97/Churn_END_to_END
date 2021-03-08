@@ -1,33 +1,26 @@
 pipeline {
-    environment {
-        registry = 'abhigyan97/ml_model'
-        registryCredential = 'dockerhub_id'
-        dockerImage = ''
-    }
-    agent any
-    stages {
-        stage('Build Docker Image') {
-            agent any
-            steps {
-                script {
-                    dockerImage = docker.build registry + ":$BUILD_NUMBER"
-                }
-            }
-        }
-        stage('Push Docker Image to Registry') {
-            agent any
-            steps {
-                script {
-                    docker.withRegistry('',registryCredential) {
-                        dockerImage.push()
-                    }
-                }
-            }
-        }
-        stage('Remove Unused docker image') {
-            steps {
-                sh "docker rmi $registry:$BUILD_NUMBER"
-            }
-        }
+	agent any
+	    stages {
+	        stage('Clone Repository') {
+	        /* Cloning the repository to our workspace */
+	        steps {
+	        checkout scm
+	        }
+	   }
+	   stage('Build Image') {
+	        steps {
+	        sh 'sudo docker build -t mynlpmodel:v1 .'
+	        }
+	   }
+	   stage('Run Image') {
+	        steps {
+	        sh 'sudo docker run -d -p 5000:4000 --name nlpmodel mynlpmodel:v1'
+	        }
+	   }
+	   stage('Testing'){
+	        steps {
+	            echo 'Testing..'
+	            }
+	   }
     }
 }
